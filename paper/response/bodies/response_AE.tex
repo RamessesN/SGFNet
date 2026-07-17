@@ -19,38 +19,24 @@ We greatly appreciate the Associate Editor and the reviewers for their construct
 
 The major revisions of the paper are as follows:
 
-\textbf{AAA}:
+\textbf{Methodological Clarification and Technical Contribution Enhancement:}
 
-aaa
+We substantially strengthened the methodological description of the proposed SGFNet. Specifically, we clarified the technical novelty of the Semantic Mixing Convolution Block (SMCB) by explicitly comparing it with representative dynamic convolution and semantic-aware filtering methods. We further elaborated the physical interpretation of SMCB for modeling long-range semantic dependencies, clarified the tensor dimensions and dynamic kernel generation process, and corrected the attention formulation in the Frequency Modulated Fusion Block (FMFB) to eliminate ambiguity.
 
-\textbf{BBB}:
+\textbf{Spatial Misalignment Robustness Validation:}
 
-bbb
+To better justify the motivation of the proposed FMFB, we added both theoretical and experimental evidence regarding its robustness to spatial misalignment. Specifically, we introduced a theoretical explanation based on the shift property of frequency-domain representations and conducted controlled experiments under different artificial spatial shifts. The results consistently demonstrate that SGFNet exhibits significantly smaller performance degradation than representative state-of-the-art methods as the degree of misalignment increases.
 
-\textbf{CCC}:
+\textbf{Experimental Evaluation Enhancement:}
 
-ccc
+We considerably expanded the experimental evaluation to provide a more comprehensive validation of the proposed method. A newly published state-of-the-art baseline (GCCQTNet) was incorporated into the comparative experiments on both benchmark datasets. Furthermore, we added computational complexity analysis, parameter sensitivity studies, kernel-size analysis, and visualized classification maps, providing a more thorough evaluation of both effectiveness and practical applicability.
 
-\textbf{DDD}:
+\textbf{Further Analysis and Discussion:}
 
-ddd
+Following the reviewers' suggestions, we substantially enriched the analysis and discussion throughout the manuscript. We provided detailed explanations regarding the influence of class imbalance and spectrally ambiguous categories, discussed the remaining challenges in difficult classes, clarified how SGFNet alleviates spatial misalignment, and further explained the physical role of the frequency-domain difference features together with their impact on preserving complementary modality-specific information.
 
-\textbf{EEE}:
+\textbf{Overall Manuscript Improvement:}
 
-eee
-
-\textbf{FFF}:
-
-fff
-
-\textbf{GGG}:
-
-ggg
-
-\textbf{HHH}:
-
-hhh
+The entire manuscript has been carefully revised to improve technical clarity, presentation quality, and readability. Additional explanations have been incorporated throughout the methodology and experimental sections, several figures and tables have been updated accordingly, and all corresponding modifications have been highlighted in red in the revised manuscript for convenient review.
 
 In the following, we will respond to each of the comments in detail.
-
-\newpage

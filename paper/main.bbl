@@ -47,6 +47,12 @@ X.~Cui and L.~Zhang, ``{MTMixer}: a hybrid {Mamba-Transformer} architecture for 
 \bibitem{mz26jstars}
 Z.~Meng, Z.~Yang, and F.~Zhao, ``Joint classification of hyperspectral and lidar data based on dynamic sparse-dense transformer and mamba,'' \emph{IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing}, vol.~19, pp. 11\,445--11\,461, 2026.
 
+\bibitem{condconv}
+B.~Yang, G.~Bender, Q.~V. Le, and J.~Ngiam, ``Condconv: Conditionally parameterized convolutions for efficient inference,'' in \emph{Advances in Neural Information Processing Systems}, H.~Wallach, H.~Larochelle, A.~Beygelzimer, F.~d\textquotesingle Alch\'{e}-Buc, E.~Fox, and R.~Garnett, Eds., vol.~32.\hskip 1em plus 0.5em minus 0.4em\relax Curran Associates, Inc., 2019.
+
+\bibitem{involution}
+D.~Li, J.~Hu, C.~Wang, X.~Li, Q.~She, L.~Zhu, T.~Zhang, and Q.~Chen, ``Involution: Inverting the inherence of convolution for visual recognition,'' in \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, June 2021, pp. 12\,321--12\,330.
+
 \bibitem{aug23data}
 J.~Hu, R.~Liu, D.~Hong, A.~Camero, J.~Yao, M.~Schneider, F.~Kurz, K.~Segl, and X.~X. Zhu, ``Mdas: a new multimodal benchmark dataset for remote sensing,'' \emph{Earth System Science Data}, vol.~15, no.~1, pp. 113--131, 2023.
 
