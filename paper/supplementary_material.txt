@@ -1,0 +1,43 @@
+\section*{\textcolor{red}{Supplementary Material}}
+\label{sec:supplementary}
+
+\textcolor{red}{\textbf{S.I Computational Complexity Analysis}}
+
+\textcolor{red}{To evaluate the practical applicability of SGFNet, we compare its computational complexity against all baseline methods in terms of the number of parameters (Params), floating-point operations (FLOPs), and inference time, measured on the Houston2018 dataset using the same hardware (NVIDIA GeForce RTX 5080 GPU) and input configuration as described in Section III-A of the main manuscript. As shown in Table~S1, SGFNet achieves the lowest number of parameters (1.2124M) among all compared methods. In terms of FLOPs, SGFNet (0.0396G) is slightly higher than the most lightweight baselines but remains substantially lower than the attention-heavy S$^2$ENet, DFINet, and ExViT. Regarding inference time, SGFNet (0.1784s) is essentially on par with the fastest baseline MSFM and considerably faster than all other methods, notably GCCQTNet (0.4667s), despite the latter having marginally fewer FLOPs, which we attribute to the less hardware-friendly quaternion and cross-memory operations adopted by GCCQTNet. These results demonstrate that SGFNet achieves a favorable trade-off between computational efficiency and classification accuracy, despite the additional dynamic kernel generation in SMCB and the attention-like operations in FMFB.}
+
+\begin{table}[h]
+  \centering
+  \caption*{\textcolor{red}{TABLE S1 Comparison of computational complexity on the Houston2018 dataset.}}
+  \resizebox{\columnwidth}{!}{
+  \begin{tabular}{lccc}
+  \toprule
+  Method & Params (M) & FLOPs (G) & Inference Time (s) \\
+  \midrule
+  S$^2$ENet & 1.4701 & 0.1778 & 0.2489 \\
+  DFINet    & 1.3155 & 0.1191 & 0.3182 \\
+  ExViT     & 1.8848 & 0.2901 & 0.3271 \\
+  DFFNet    & 1.2829 & 0.0303 & 0.2387 \\
+  MSFM      & 1.5252 & 0.0377 & 0.1747 \\
+  GCCQTNet  & 1.2608 & 0.0293 & 0.4667 \\
+  \textbf{SGFNet (Ours)} & \textbf{1.2124} & 0.0396 & \underline{0.1784} \\
+  \bottomrule
+  \end{tabular}}
+  \label{table_supp_complexity}
+\end{table}
+
+\textcolor{red}{\textbf{S.II Sensitivity of the Channel Dimension}}
+
+\textcolor{red}{The channel dimension $C$ determines the feature representation capacity of SGFNet, and may therefore affect both classification performance and model complexity. We evaluate SGFNet with $C \in \{32, 64, 128, 256\}$ on both the Augsburg and Houston2018 datasets, and the results are shown in Table~S2. [TODO: 待补充结果分析文字]. Based on this analysis, we set $C=$ [TODO] in our experiments, as it achieves the best trade-off between classification accuracy and model complexity.}
+
+[表格 S2 同上]
+
+\textcolor{red}{\textbf{S.III Classification Maps on the Augsburg Dataset}}
+
+\textcolor{red}{Fig.~S1 shows the classification maps of all compared methods on the Augsburg dataset. [TODO: 待补充可视化结果分析文字]}
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig_results_augsburg.pdf}
+  \caption{\textcolor{red}{Classification results of different methods on the Augsburg dataset.}}
+  \label{fig_results_augsburg}
+\end{figure}

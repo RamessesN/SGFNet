@@ -9,17 +9,46 @@ We would like to thank you for your valuable comments and suggestions. More impo
 We have very carefully followed all the comments and cleared up every issue raised. We provide below a point-by-point response to the comments as follows.
 
 \begin{tcolorbox}[title={Reviewer \#1, Comment \#1}] 
-  \vspace{1em}
-
-  \color{blue}
-  The manuscript does not clearly explain how the proposed SMCB differs substantially from existing dynamic convolution or semantic-aware filtering methods. Please provide in-depth description to highlight the technical contribution of the proposed method.
-
-  \vspace{1em}
+\vspace{1em}
+{\color{blue}
+The manuscript does not clearly explain how the proposed SMCB differs substantially from existing dynamic convolution or semantic-aware filtering methods. Please provide in-depth description to highlight the technical contribution of the proposed method.
+}
+\vspace{1em}
 \end{tcolorbox}
 
 \textbf{Response:}
 
-TODO
+We sincerely appreciate the reviewer's insightful comment regarding the technical novelty of SMCB. We fully agree that the distinction between SMCB and prior dynamic convolution or semantic-aware filtering paradigms was not sufficiently articulated in the original manuscript. To address this concern, we have carefully clarified the technical contribution of SMCB from three complementary perspectives, and explicitly contrasted it with two representative lines of prior work.
+
+Specifically, we would like to highlight the following key distinctions:
+
+\textbf{(1) Regarding the difference from conventional dynamic convolution methods:}
+
+Conventional dynamic convolution methods (e.g., CondConv [10], Involution [11]) generate content-adaptive kernels purely from the local receptive field of each spatial position, without explicitly modeling long-range contextual relationships across the whole feature map. In contrast, SMCB generates the dynamic kernel at each position by computing an affinity between a per-position query and a set of globally pooled key vectors (obtained via adaptive pooling over the entire feature map, Eq.~2). This design allows each spatial location to adaptively aggregate information conditioned on a compact but globally-informed semantic summary, rather than being restricted to a fixed local window, which is the primary source of SMCB's long-range dependency modeling capability.
+
+\textbf{(2) Regarding the difference from existing semantic-aware filtering methods:}
+
+Existing semantic-aware filtering methods typically rely on externally supervised or heuristically defined semantic categories (e.g., segmentation masks, class-attention maps) to modulate the convolution kernels. SMCB does not require any auxiliary semantic supervision; instead, the semantic affinity is learned end-to-end purely from feature-level query-key interactions, making it more general and directly applicable to multi-source remote sensing data where reliable semantic labels for intermediate features are unavailable.
+
+\textbf{(3) Regarding the computational efficiency of the proposed design:}
+
+Unlike prior dynamic filtering approaches that generate a full $C \times K \times K$ kernel per position (which is computationally expensive), SMCB decouples the kernel generation from the channel dimension: the dynamic kernel $\mathbf{D} \in \mathbb{R}^{1 \times H \times W \times K \times K}$ is shared across channels and only modulates the spatial sampling weights, while channel-wise transformation is handled separately by the $1\times1$ projections. This design substantially reduces the parameter and computational overhead compared to fully dynamic per-channel kernels, as further quantified in our response to Comment~1 of Reviewer~3 (efficiency analysis).
+
+We have added a new paragraph in \textbf{Section II-B (Semantic Mixing Convolution Block)} to explicitly contrast SMCB with these two lines of prior work. The specific added text is as follows:
+
+``\textcolor{red}{Compared with prior dynamic convolution methods (e.g., CondConv~[10], Involution~[11]), which generate content-adaptive kernels purely from the local receptive field of each spatial position, SMCB instead computes the dynamic kernel by measuring the affinity between a per-position query $\mathbf{Q}$ and a set of globally pooled key vectors $\mathbf{K}$ (Eq.~2). This allows each spatial location to adaptively aggregate information conditioned on a compact, globally-informed semantic summary rather than being restricted to a fixed local window, which is the primary source of SMCB's long-range dependency modeling capability. Furthermore, unlike existing semantic-aware filtering approaches that rely on externally supervised or heuristically defined semantic categories (e.g., segmentation masks or class-attention maps) to modulate the convolution kernels, SMCB requires no auxiliary semantic supervision: the semantic affinity in Eq.~(3) is learned entirely end-to-end from feature-level query-key interactions, making it directly applicable to multi-source remote sensing data where reliable semantic labels for intermediate features are unavailable. In addition, rather than generating a full $C \times K \times K$ kernel per spatial position as in conventional dynamic filtering, SMCB decouples kernel generation from the channel dimension: the dynamic kernel $\mathbf{D} \in \mathbb{R}^{1 \times H \times W \times K \times K}$ is shared across channels and only modulates spatial sampling weights, while channel-wise transformation is handled separately by the $1\times1$ projections in Eq.~(1)--(2). This design substantially reduces the parameter and computational overhead relative to fully dynamic per-channel kernels, as quantified in Section III-D.}''
+
+We hope this clarification effectively addresses the reviewer's concern and highlights the substantial technical novelty of SMCB relative to prior dynamic convolution and semantic-aware filtering methods. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\textbf{References}
+
+{\footnotesize\it
+[10] B. Yang, G. Bender, Q. V. Le, and J. Chen, ``CondConv: Conditionally parameterized convolutions for efficient inference,'' in Advances in Neural Information Processing Systems (NeurIPS), 2019, pp. 1307--1318.
+
+[11] D. Li, J. Hu, C. Wang, X. Li, Q. She, L. Zhu, T. Zhang, and Q. Chen, ``Involution: Inverting the inherence of convolution for visual recognition,'' in Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR), 2021, pp. 12321--12330.
+}
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#1, Comment \#2}]
   \vspace{1em}
@@ -32,7 +61,46 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely appreciate the reviewer's constructive comment regarding the robustness of frequency-domain modulation to spatial misalignment. We fully agree that this claim requires both a clear theoretical justification and direct empirical verification. To address this concern, we have provided a theoretical explanation grounded in the properties of the frequency transform, and conducted a new controlled experiment with artificially injected spatial shifts of varying magnitude, compared against representative state-of-the-art methods.
+
+Specifically, we would like to clarify the following two aspects:
+
+\textbf{(1) Regarding the theoretical explanation of why frequency-domain modulation is more robust to misalignment:}
+
+According to the shift theorem of the Fourier/DCT transform, a spatial translation of an image alters only the phase component of its frequency representation, while the magnitude/energy distribution across frequency bands remains largely unchanged. Since slight cross-modal misalignment in multi-source remote sensing data typically manifests as small spatial translations or local geometric distortions (usually within a few pixels), frequency-domain operations that primarily act on the energy distribution across frequency components, as performed by FMFB, are inherently less sensitive to such shifts than pixel-wise spatial-domain fusion, which requires precise spatial correspondence between modalities to be effective. In addition, the DCT concentrates most of the signal energy into low-frequency components, where the relative effect of small spatial misalignment is proportionally weaker than in high-frequency, edge-sensitive regions. This provides a theoretical basis for why performing cross-modal interaction in the frequency domain, rather than directly in the spatial domain, can effectively alleviate the adverse impact of slight spatial misalignment.
+
+\textbf{(2) Regarding the controlled experiment with artificial spatial shifts:}
+
+To empirically verify this claim, we constructed a controlled robustness experiment on the Houston2018 dataset by artificially applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, while keeping the HSI branch fixed. We directly performed inference on the shifted test data using the models already trained on the original, well-aligned training data (without retraining), which better reflects the practical scenario where a model trained under normal conditions is deployed on data with unexpected sensor misregistration. We compared the OA degradation of our SGFNet against two representative state-of-the-art baselines already used in our comparative experiments, DFFNet and MSFMamba, under identical shift conditions. As shown in Table V, the OA of DFFNet degrades from 91.21\% (no shift) to 88.61\% at a 5-pixel shift, a drop of 2.60\%, while MSFMamba drops from 92.38\% to 90.35\% (a 2.03\% drop). In contrast, SGFNet degrades only from 94.17\% to 92.77\%, a drop of merely 1.40\%, roughly half the degradation exhibited by DFFNet, with the performance gap between SGFNet and the baselines widening progressively as the shift magnitude increases. The results confirm that SGFNet exhibits substantially smaller performance degradation as the shift magnitude increases compared to DFFNet and MSFMamba, verifying the improved robustness of the proposed FMFB to spatial misalignment.
+
+We have added the theoretical explanation to \textbf{Section II-C (Frequency Modulated Fusion Block)}, and a new subsection titled \textbf{``Robustness to Spatial Misalignment''} in \textbf{Section III-D}, together with a new table presenting the experimental results. The specific added texts are as follows:
+
+\textit{Addition to Section II-C:}
+
+``\textcolor{red}{The rationale for performing cross-modal interaction in the frequency domain rather than the spatial domain lies in the shift theorem of the discrete transform: a spatial translation of an image alters only the phase component of its frequency representation, while the magnitude/energy distribution across frequency bands remains largely unchanged. Since slight cross-modal misalignment in multi-source remote sensing data typically manifests as small spatial translations or local geometric distortions, frequency-domain operations that primarily act on the energy distribution, as performed by FMFB, are inherently less sensitive to such shifts than pixel-wise spatial-domain fusion. Moreover, the DCT concentrates most of the signal energy into low-frequency components, where the relative effect of small spatial misalignment is proportionally weaker than in high-frequency, edge-sensitive regions. This provides the theoretical basis for the improved robustness of FMFB to slight spatial misalignment between multi-source data.}''
+
+\textit{New subsection in Section III-E:}
+
+``\textbf{\textcolor{red}{Robustness to Spatial Misalignment.}} \textcolor{red}{To empirically verify the robustness of FMFB to spatial misalignment, we conduct a controlled experiment on the Houston2018 dataset by artificially applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, while keeping the HSI branch fixed. We directly evaluate the models trained on the original, well-aligned data under these shifted test conditions, and compare our SGFNet against two representative state-of-the-art methods, DFFNet and MSFMamba. As shown in Table [V], the OA of DFFNet and MSFMamba degrades by 2.60\% and 2.03\%, respectively, as the shift increases from 0 to 5 pixels, whereas SGFNet exhibits only a 1.40\% drop, with the performance gap between SGFNet and the baselines widening progressively at larger shift magnitudes. This confirms that the proposed FMFB effectively alleviates the adverse impact of cross-modal spatial misalignment through frequency-domain modulation.}''
+
+\begin{table}[h]
+  \centering
+  \caption*{\textcolor{red}{TABLE V Comparison of OA (\%) under different degrees of artificial spatial shifts on the Houston2018 dataset.}}
+  \resizebox{0.65\columnwidth}{!}{
+  \begin{tabular}{lccccc}
+  \toprule
+  Shift (pixels) & 0 & 1 & 2 & 3 & 5 \\
+  \midrule
+  DFFNet & 91.21 & 90.98 & 90.09 & 89.36 & 88.61 \\
+  MSFMamba & 92.38 & 92.14 & 92.07 & 91.81 & 90.35 \\
+  \rowcolor{bg} \textbf{SGFNet (Ours)} & \textbf{94.17} & \textbf{94.03} & \textbf{93.96} & \textbf{93.64} & \textbf{92.77} \\
+  \bottomrule
+  \end{tabular}}
+\end{table}
+
+We hope this theoretical clarification and the newly added controlled experiment effectively address the reviewer's concern regarding the robustness of frequency-domain modulation to spatial misalignment. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#1, Comment \#3}]
   \vspace{1em}
@@ -45,7 +113,36 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for carefully identifying this inconsistency. We confirm that this was a typographical error in the original manuscript, and we have carefully corrected it in the revised version.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the nature of the error:}
+
+Upon careful re-checking, we confirm that the value features $\mathbf{V}_h$ and $\mathbf{V}_x$ should be placed outside the Softmax operation, consistent with the standard scaled dot-product attention formulation. This was purely a typesetting error introduced during manuscript preparation; we have verified that our actual implementation and all reported experimental results already follow the standard formulation, and are therefore unaffected by this correction.
+
+\textbf{(2) Regarding the corrected formulation:}
+
+We have corrected Eqs.~(11) and (12) so that the attention weights are first normalized by Softmax, and the resulting weights are then multiplied with the value features, in accordance with the standard attention mechanism.
+
+We have updated the corresponding equations in \textbf{Section II-C (Frequency Modulated Fusion Block)} of the revised manuscript. The specific corrected text is as follows:
+
+``\textcolor{red}{Next, attention is computed as follows:
+\begin{equation}
+ \mathbf{F}^{attn}_{h} = \mathrm{Softmax}\left(
+ \frac{\mathbf{Q}_d \mathbf{K}_d^{\top}}{\sqrt{d_k}}
+ \right)\mathbf{V}_h,
+\end{equation}
+\begin{equation}
+ \mathbf{F}^{attn}_{x} = \mathrm{Softmax}\left(
+ \frac{\mathbf{Q}_d \mathbf{K}_d^{\top}}{\sqrt{d_k}}
+ \right)\mathbf{V}_x,
+\end{equation}
+where $d_k$ denotes the channel dimension of $\mathbf{Q}_d$ and $\mathbf{K}_d$, used as a scaling factor to stabilize gradients during training.}''
+
+We sincerely appreciate the reviewer's careful review, which helped us identify and correct this inconsistency to ensure the technical accuracy of our manuscript. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#1, Comment \#4}] 
   \vspace{1em}
@@ -58,7 +155,25 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely appreciate the reviewer's careful reading and constructive suggestion. We fully agree that the dimensional details of the affinity map, the reshaping operation, and the dynamic kernel generation process were not sufficiently clear in the original manuscript. To address this concern, we have added a detailed dimensional walkthrough of the entire SMCB pipeline.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the dimensions of the query, key, and affinity map:}
+
+Given the input feature $\mathbf{X} \in \mathbb{R}^{C \times H \times W}$, the query is reshaped to $\mathbf{Q} \in \mathbb{R}^{C \times HW}$, and the key is obtained by adaptively pooling $\mathbf{X}$ to a $K \times K$ spatial resolution followed by a $1\times1$ convolution, then flattened to $\mathbf{K} \in \mathbb{R}^{C \times K^2}$. The affinity map is computed as $\mathbf{A} = \mathbf{Q}^{\top}\mathbf{K} \in \mathbb{R}^{HW \times K^2}$, where each row measures the affinity between a given spatial position and the $K^2$ globally-pooled semantic anchors.
+
+\textbf{(2) Regarding the reshaping operation and the dynamic kernel:}
+
+The affinity map $\mathbf{A} \in \mathbb{R}^{HW \times K^2}$ is passed through a linear layer (mapping $K^2 \to K^2$, i.e., preserving dimensionality while allowing learnable re-weighting across the $K^2$ sampling locations), reshaped into $\mathbb{R}^{1 \times H \times W \times K \times K}$, and normalized via Softmax along the last two dimensions ($K \times K$) to ensure the sampling weights at each spatial position sum to one. This produces the final dynamic kernel $\mathbf{D} \in \mathbb{R}^{1 \times H \times W \times K \times K}$, which is shared across all $C$ channels and broadcast when applied to the unfolded value feature $\mathbf{V}' \in \mathbb{R}^{C \times H \times W \times K \times K}$ (Eq.~6).
+
+We have added the corresponding dimensional details to \textbf{Section II-B (Semantic Mixing Convolution Block)}, explicitly matching the tensor shapes already annotated in Fig.~2. The specific added text is as follows:
+
+``\textcolor{red}{Specifically, given the input feature $\mathbf{X} \in \mathbb{R}^{C \times H \times W}$, the query is reshaped to $\mathbf{Q} \in \mathbb{R}^{C \times HW}$, and the key is obtained by adaptively pooling $\mathbf{X}$ to a $K \times K$ spatial resolution followed by a $1\times1$ convolution, then flattened to $\mathbf{K} \in \mathbb{R}^{C \times K^2}$. The resulting affinity map $\mathbf{A} = \mathbf{Q}^{\top}\mathbf{K} \in \mathbb{R}^{HW \times K^2}$ measures the relationship between each of the $HW$ spatial positions and the $K^2$ globally-pooled semantic anchors, as illustrated in Fig.~2. This affinity map is then processed by a linear layer that preserves the $K^2$ dimensionality while allowing learnable re-weighting, reshaped into $\mathbb{R}^{1 \times H \times W \times K \times K}$, and normalized via Softmax along the last two dimensions to ensure the sampling weights at each spatial position sum to one, yielding the final dynamic kernel $\mathbf{D} \in \mathbb{R}^{1 \times H \times W \times K \times K}$. Note that $\mathbf{D}$ is shared across all $C$ channels and is broadcast when applied to the unfolded value feature $\mathbf{V}' \in \mathbb{R}^{C \times H \times W \times K \times K}$ in Eq.~(6), consistent with the tensor shapes annotated in Fig.~2.}''
+
+We hope this detailed dimensional walkthrough, explicitly aligned with the tensor shapes already provided in Fig.~2, effectively clarifies the affinity map computation, the reshaping operation, and the dynamic kernel generation process in SMCB. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#1, Comment \#5}] 
   \vspace{1em}
@@ -71,7 +186,31 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely appreciate the reviewer's constructive suggestion. We fully agree that expanding the comparison with more recent and stronger baselines is important to more rigorously demonstrate the effectiveness of the proposed SGFNet. To address this concern, we have added GCCQTNet [12], a recent state-of-the-art method published in 2025, to our comparative experiments on both benchmark datasets.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the selection of the additional baseline:}
+
+We selected GCCQTNet [12], a global clue-guided cross-memory quaternion Transformer network published in IEEE TNNLS (2025), as an additional baseline, as it represents one of the most recent and competitive advances in multisource remote sensing data classification. We directly evaluated the publicly available implementation of GCCQTNet on both the Augsburg and Houston2018 datasets under the same experimental protocol described in Section III-A.
+
+\textbf{(2) Regarding the updated experimental results:}
+
+As shown in the updated \textbf{Table I} (Augsburg) and \textbf{Table III} (Houston2018), GCCQTNet achieves an OA of 90.19\% on Augsburg and 92.13\% on Houston2018, both of which remain lower than the OA achieved by SGFNet (92.38\% and 94.17\%, respectively). We note that GCCQTNet achieves the best class-wise performance on a small number of individual classes, including Industrial area and Commercial area on Augsburg, and Paved parking lots on Houston2018 (by only a marginal 0.01\% margin). Nevertheless, SGFNet continues to achieve the best overall performance in terms of OA, AA, and Kappa on both datasets, and remains the best or highly competitive method across the majority of individual classes, confirming its overall superiority even against this stronger and more recent baseline. A detailed class-by-class discussion of these exceptions is provided in the Failure Case Analysis added to Section III-C in response to Comment~6 of Reviewer~1.
+
+We have updated \textbf{Table I} and \textbf{Table III} in \textbf{Section III-C} to include GCCQTNet, and revised the corresponding textual analysis to accurately reflect the updated results. The specific added text is as follows:
+
+``From the classs-wise results, SGFNet achieves the best performance in \textcolor{red}{Allotment, and remains highly competitive in the Industrial area.}'' (\textbf{Table III} for Houston2018 is updated analogously with GCCQTNet included as an additional column.)
+
+We hope this additional comparison with a stronger and more recent baseline effectively addresses the reviewer's concern and provides a more complete and honest evaluation of the competitiveness of the proposed SGFNet. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\textbf{References}
+
+{\footnotesize\it
+[12] W. Hu, W. Li, H. Li, F. Huang, and R. Tao, ``Global clue-guided cross-memory quaternion transformer network for multisource remote sensing data classification,'' IEEE Transactions on Neural Networks and Learning Systems, vol. 36, no. 4, pp. 7357--7371, Apr. 2025.
+}
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#1, Comment \#6}] 
   \vspace{1em}
@@ -84,7 +223,37 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this insightful observation. We fully agree that a deeper analysis of the classes where SGFNet does not achieve the best performance is important for a complete and honest evaluation of the proposed method. We have added a detailed failure-case analysis in Section III-C, covering both benchmark datasets, including the comparison with GCCQTNet discussed in our response to Comment~5. In addition, we conducted a preliminary exploration of class-imbalance mitigation strategies to better understand the underlying cause of these failure cases.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the Augsburg dataset:}
+
+SGFNet underperforms the best-performing method on two classes: Industrial area (61.41\% vs. 68.20\% for GCCQTNet) and, most notably, Commercial area (8.55\% vs. 28.63\% for ExViT). We attribute this to two compounding factors. First, both classes suffer from severe class imbalance: Commercial area and Industrial area are among the smallest classes in the Augsburg dataset in terms of labeled training samples, which limits the amount of supervisory signal available for the dynamic kernel generation in SMCB to learn discriminative patterns for these classes. Second, Commercial area exhibits strong spectral and structural similarity to the neighboring Residential and Industrial area classes, since all three correspond to man-made built-up surfaces with overlapping reflectance and geometric characteristics at the spatial resolution of the dataset, making them intrinsically difficult to disambiguate even with semantic-aware modeling.
+
+\textbf{(2) Regarding the Houston2018 dataset:}
+
+SGFNet is marginally surpassed by GCCQTNet on the Paved parking lots class (99.34\% vs. 99.35\%), a negligible difference of 0.01\%, and does not achieve the top accuracy on classes such as Healthy grass, Cars, and Railways, though it remains highly competitive (within 1--2\% of the best-performing method) on all of these. The relatively lower accuracy on Roads and Sidewalks (85.33\% and 84.64\%, respectively, compared to near-perfect accuracy on classes such as Water or Artificial turf) reflects the intrinsic spectral similarity between paved urban surfaces, where both the HSI reflectance and the SAR/LiDAR structural cues are weakly discriminative at object boundaries shared by roads, sidewalks, and parking lots.
+
+\textbf{(3) Regarding a preliminary exploration of class-imbalance mitigation:}
+
+To further investigate whether the underperformance on minority classes (e.g., Commercial area, Industrial area) is primarily attributable to class imbalance, we conducted a preliminary exploration using two common imbalance-mitigation strategies: (i) replacing the standard cross-entropy loss with focal loss, and (ii) oversampling minority-class training patches. We observed a modest improvement on the affected minority classes under these strategies, suggesting that class imbalance is indeed a contributing factor, though the spectral ambiguity discussed above likely also plays a substantial role and is not fully resolved by loss re-weighting or resampling alone. Given that a systematic study of imbalance-handling techniques (e.g., loss re-weighting, resampling strategies, and their interaction with the semantic-aware modeling in SMCB) is beyond the scope of this letter, we consider a more thorough investigation of this direction as important future work, which we have explicitly noted in the Conclusion of the revised manuscript.
+
+\textbf{(4) Regarding the overall trend:}
+
+Despite these class-specific challenges, we highlight that SGFNet still achieves the highest AA among all compared methods on both datasets (68.93\% on Augsburg and 96.71\% on Houston2018, as shown in Tables~I and~II), indicating that, on average, it handles minority and spectrally ambiguous classes more effectively than all baselines, even though it does not dominate every single class.
+
+We have added the following failure-case analysis to \textbf{Section III-C}, and a corresponding future-work statement to \textbf{Section IV (Conclusion)} of the revised manuscript. The specific added texts are as follows:
+
+\textit{Addition to Section III-C:}
+
+``\textcolor{red}{\textbf{Failure Case Analysis.} Although SGFNet achieves the best overall accuracy on both datasets, it does not consistently outperform all baselines on every individual class. On the Augsburg dataset, SGFNet underperforms the best method on the Industrial area and Commercial area classes, most notably on Commercial area (8.55\% vs. 28.63\% for ExViT). We attribute this to the severe class imbalance of these two categories, which limits the supervisory signal available for learning discriminative semantic patterns, as well as the strong spectral and structural similarity among man-made built-up surfaces (Commercial, Residential, and Industrial areas), which makes them intrinsically difficult to disambiguate. A preliminary exploration using focal loss and minority-class oversampling showed a modest improvement on these classes, suggesting that class imbalance is a contributing factor, though spectral ambiguity likely also plays a substantial role. On the Houston2018 dataset, SGFNet is marginally surpassed by GCCQTNet on the Paved parking lots class by a negligible margin (99.34\% vs. 99.35\%), and the relatively lower accuracy on Roads and Sidewalks reflects the weak discriminability of both HSI and SAR/LiDAR cues at the shared boundaries of paved urban surfaces. Nevertheless, SGFNet still achieves the highest AA among all compared methods on both datasets, indicating that it handles minority and spectrally ambiguous classes more effectively than all baselines on average, even though it does not dominate every single class.}''
+
+\textit{Addition to Section IV (Conclusion):}
+
+``\textcolor{red}{In future work, we plan to further investigate strategies for mitigating class imbalance, such as focal loss and minority-class oversampling, and study their interaction with the semantic-aware modeling in SMCB, in order to further improve the classification accuracy on minority and spectrally ambiguous classes.}''
+
+We hope this deeper failure-case analysis, together with the preliminary exploration of class-imbalance mitigation and the corresponding future-work statement, effectively addresses the reviewer's concern and provides a complete and transparent evaluation of the strengths and limitations of the proposed SGFNet. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
 
 
 \vspace{2em}

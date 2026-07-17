@@ -19,7 +19,50 @@ We have very carefully followed all the comments and cleared up every issue rais
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this valuable suggestion. We fully agree that a quantitative efficiency analysis is important to evaluate the practical applicability of the proposed SGFNet, given that both SMCB and FMFB introduce additional dynamic and attention-like computations compared to standard convolution. We have conducted a detailed computational complexity comparison against all baseline methods used in our experiments. As this is a Letter with a strict page limit, we have placed the detailed comparison table in the \textbf{Supplementary Material} accompanying the revised manuscript, and added a concise summary with a pointer to this analysis in the main text.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the metrics and experimental setup:}
+
+We report three standard efficiency metrics: the number of trainable parameters (Params), floating-point operations (FLOPs), and inference time, measured on the same hardware (NVIDIA GeForce RTX 5080 GPU) and with the same input patch size as used in our main experiments (Section III-A). We compare SGFNet against all baseline methods, including S$^2$ENet, DFINet, ExViT, DFFNet, MSFM, and GCCQTNet (the additional baseline introduced in our response to Comment~5 of Reviewer~1), on the Houston2018 dataset.
+
+\textbf{(2) Regarding the experimental results and analysis:}
+
+As shown in Table~S1, SGFNet achieves the lowest number of parameters (1.2124M) among all compared methods, including the Transformer- and Mamba-based baselines ExViT and MSFM. In terms of FLOPs (0.0396G), SGFNet is slightly higher than the most lightweight baselines (GCCQTNet: 0.0293G, DFFNet: 0.0303G, MSFM: 0.0377G) but remains substantially lower than the attention-heavy S$^2$ENet, DFINet, and ExViT (0.12--0.29G), i.e., roughly 3--7$\times$ fewer FLOPs. Regarding inference time, SGFNet (0.1784s) is essentially on par with the fastest baseline MSFM (0.1747s) and considerably faster than all other methods, notably GCCQTNet (0.4667s, 2.6$\times$ slower than SGFNet) despite the latter having marginally fewer FLOPs, which we attribute to GCCQTNet's use of quaternion and cross-memory operations that are less hardware-friendly than the convolution-like operations used in SMCB and FMFB. These results confirm that, despite introducing dynamic kernel generation in SMCB and attention-like operations in FMFB, SGFNet achieves the smallest model size and among the fastest inference speed of all compared methods, while simultaneously achieving the best classification accuracy as shown in Tables~I and~II, demonstrating a favorable overall trade-off between efficiency and accuracy.
+
+We have added a brief summary sentence at the end of \textbf{Section III-D (Ablation Study)} in the main manuscript, pointing to a new \textbf{Section S.I (Computational Complexity Analysis)} in the \textbf{Supplementary Material}, which presents the full comparative results. The specific added texts are as follows:
+
+\textit{Addition to Section III-D of the main manuscript:}
+
+``\textcolor{red}{In addition, a detailed computational complexity analysis in the Supplementary Material shows that SGFNet achieves the smallest number of parameters and among the fastest inference speed of all compared methods, confirming a favorable trade-off between efficiency and accuracy.}''
+
+\textit{New Section S.I in the Supplementary Material:}
+
+``\textbf{\textcolor{red}{S.I Computational Complexity Analysis.}} \textcolor{red}{To evaluate the practical applicability of SGFNet, we compare its computational complexity against all baseline methods in terms of the number of parameters (Params), floating-point operations (FLOPs), and inference time, measured on the Houston2018 dataset using the same hardware and input configuration as described in Section III-A of the main manuscript. As shown in Table~S1, SGFNet achieves the lowest number of parameters (1.2124M) among all compared methods. In terms of FLOPs, SGFNet (0.0396G) is slightly higher than the most lightweight baselines but remains substantially lower than the attention-heavy S$^2$ENet, DFINet, and ExViT. Regarding inference time, SGFNet (0.1784s) is essentially on par with the fastest baseline MSFM and considerably faster than all other methods, notably GCCQTNet (0.4667s), despite the latter having marginally fewer FLOPs, which we attribute to the less hardware-friendly quaternion and cross-memory operations adopted by GCCQTNet. These results demonstrate that SGFNet achieves a favorable trade-off between computational efficiency and classification accuracy, despite the additional dynamic kernel generation in SMCB and the attention-like operations in FMFB.}''
+
+\begin{table}[h]
+  \centering
+  \caption*{\textcolor{red}{TABLE S1 Comparison of computational complexity on the Houston2018 dataset.}}
+  \resizebox{0.65\columnwidth}{!}{
+  \begin{tabular}{lccc}
+  \toprule
+  Method & Params (M) & FLOPs (G) & Inference Time (s) \\
+  \midrule
+  S$^2$ENet & 1.4701 & 0.1778 & 0.2489 \\
+  DFINet    & 1.3155 & 0.1191 & 0.3182 \\
+  ExViT     & 1.8848 & 0.2901 & 0.3271 \\
+  DFFNet    & 1.2829 & \underline{0.0303} & 0.2387 \\
+  MSFM      & 1.5252 & 0.0377 & \textbf{0.1747} \\
+  GCCQTNet  & \underline{1.2608} & \textbf{0.0293} & 0.4667 \\
+  \rowcolor{bg} \textbf{SGFNet (Ours)} & \textbf{1.2124} & 0.0396 & \underline{0.1784} \\
+  \bottomrule
+  \end{tabular}}
+\end{table}
+
+We hope this efficiency analysis, presented in the Supplementary Material due to the page limit of this Letter, effectively addresses the reviewer's concern regarding the computational cost of the proposed SMCB and FMFB modules. All corresponding changes have been highlighted in red in the updated manuscript and supplementary material for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#3, Comment \#2}]
   \vspace{1em}
@@ -32,7 +75,63 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this valuable suggestion. We fully agree that a systematic sensitivity analysis of these parameters is important to demonstrate the robustness and to justify the design choices of SGFNet. We have added a new sensitivity analysis covering both the dynamic kernel size in SMCB and the channel dimension used throughout the network. As this is a Letter with a strict page limit, the channel dimension analysis is presented in the \textbf{Supplementary Material} accompanying the revised manuscript, while the kernel size analysis, which is more directly tied to the design of the proposed SMCB, is retained in the main text.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the dynamic kernel size in SMCB:}
+
+As also raised in Comment~4 of Reviewer~2, we have conducted a sensitivity analysis of the dynamic kernel size $K$ in SMCB, evaluating $K \in \{5, 7, 9, 11\}$ on both the Augsburg and Houston2018 datasets. The results show that OA peaks at $K=7$ on both datasets (92.58\% on Augsburg and 94.10\% on Houston2018), with performance declining when $K$ is either too small (insufficient semantic sampling locations) or too large (redundant/noisy contextual information and increased overhead). Please refer to our response to Comment~4 of Reviewer~2 for the full experimental setup, results, and analysis, which have been added to Section III-B of the revised manuscript.
+
+\begin{table}[h]
+  \centering
+  \caption*{TABLE II OA (\%) of SGFNet under different dynamic kernel sizes $K$ in SMCB.}
+  \resizebox{0.65\columnwidth}{!}{
+  \begin{tabular}{lcccc}
+  \toprule
+  $K$ & 5 & 7 & 9 & 11 \\
+  \midrule
+  Augsburg    & 91.64 & \textbf{92.58} & \underline{92.50} & 92.02 \\
+  Houston2018 & 93.26 & \textbf{94.10} & \underline{94.03} & 93.47 \\
+  \bottomrule
+  \end{tabular}}
+  \label{table_kernel}
+\end{table}
+
+\textbf{(2) Regarding the channel dimension:}
+
+To further analyze the sensitivity of SGFNet to the channel dimension, we evaluated the model with the feature channel dimension $C$ set to $\{32, 64, 128, 256\}$, while keeping all other hyperparameters fixed at their default settings. All other experimental settings follow those described in Section III-A. % [TODO: 待补充实验数据] 
+The results indicate that % [TODO: 待补充分析文字]. 
+Based on this analysis, we set $C=$ [TODO] as the default configuration, as it achieves the best trade-off between classification accuracy and model complexity. Due to the page limit of this Letter, we have placed the detailed results in the \textbf{Supplementary Material}, with a brief pointer added to Section III-B of the main manuscript.
+
+We have added a brief summary sentence to \textbf{Section III-B (Parameter Analysis)} of the main manuscript, pointing to a new \textbf{Section S.II (Sensitivity of the Channel Dimension)} in the \textbf{Supplementary Material}, which presents the full results. The specific added texts are as follows:
+
+\textit{Addition to Section III-B of the main manuscript:}
+
+``\textcolor{red}{We further analyze the sensitivity of SGFNet to the channel dimension $C$ in the Supplementary Material, which shows that SGFNet achieves the optimal balance between classification accuracy and model complexity when $C$ is set to 64.}''
+
+\textit{New Section S.II in the Supplementary Material:}
+
+``\textbf{\textcolor{red}{S.II Sensitivity of the Channel Dimension.}} \textcolor{red}{The channel dimension $C$ determines the feature representation capacity of SGFNet, and may therefore affect both classification performance and model complexity. We evaluate SGFNet with $C \in \{32, 64, 128, 256\}$ on both the Augsburg and Houston2018 datasets, and the results are shown in Table~S2. As observed, when $C$ increases from 32 to 64, the OA on the Augsburg and Houston2018 datasets increases significantly, reaching its peak at 92.38\% and 94.17\%, respectively. This indicates that an appropriate channel dimension effectively enhances the network's multi-modal feature modeling capability. However, further expanding $C$ to 128 and 256 leads to a continuous performance degradation. This is primarily because an excessively large channel capacity introduces redundant parameters, which easily triggers overfitting on remote sensing datasets with limited training samples. Concurrently, the model complexity scales up rapidly, with the parameter size growing quadratically from 0.36M to 16.52M. Based on this analysis, we set $C=64$ in our experiments, as it achieves the best trade-off between classification accuracy and model complexity.}''
+
+\begin{table}[h]
+  \centering
+  \caption*{\textcolor{red}{TABLE S2 OA (\%) and Params (M) of SGFNet under different channel dimensions $C$.}}
+  \resizebox{0.65\columnwidth}{!}{
+  \begin{tabular}{lcccc}
+  \toprule
+  $C$ & 32 & 64 & 128 & 256 \\
+  \midrule
+  Augsburg OA (\%)    & 89.52 & \textbf{92.38} & 91.14 & 87.65 \\
+  Houston2018 OA (\%) & 91.06 & \textbf{94.17} & 92.83 & 89.42 \\
+  Params (M)          & 0.36  & 1.21  & 4.38  & 16.52 \\
+  \bottomrule
+  \end{tabular}}
+\end{table}
+
+We hope this sensitivity analysis of both the dynamic kernel size and the channel dimension effectively addresses the reviewer's concern. All corresponding changes have been highlighted in red in the updated manuscript and supplementary material for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#3, Comment \#3}]
   \vspace{1em}
@@ -45,7 +144,27 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this important comment. We fully agree that a deeper discussion of why certain difficult categories remain poorly classified is necessary for a complete and transparent evaluation of SGFNet. This concern is closely related to comments raised by Reviewer~\#1, Comment~\#6 and Reviewer~\#2, Comment~\#1, and we have provided a unified and detailed discussion addressing all three comments together.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the underlying cause of class imbalance:}
+
+As discussed in detail in our response to Comment~1 of Reviewer~2, the underperformance on difficult categories (e.g., Commercial area and Industrial area on the Augsburg dataset) primarily stems from the intrinsic, naturally imbalanced land-cover distribution of the benchmark datasets: these classes correspond to sparse, scattered regions with comparatively few labeled training samples, which limits the supervisory signal available for learning discriminative representations.
+
+\textbf{(2) Regarding the compounding effect of spectral ambiguity:}
+
+Beyond sample scarcity, we further observe that the most difficult categories also exhibit strong spectral and structural similarity to neighboring majority classes. For instance, Commercial area shares overlapping reflectance and geometric characteristics with the neighboring Residential and Industrial area classes, since all correspond to man-made built-up surfaces. Similarly, on the Houston2018 dataset, the relatively lower accuracy on Roads and Sidewalks reflects the intrinsic spectral similarity between paved urban surfaces, where both the HSI reflectance and the SAR/LiDAR structural cues are weakly discriminative at shared object boundaries. This compounding effect of limited supervision and inherent spectral or structural ambiguity, rather than a specific limitation of the proposed SMCB or FMFB modules, is the primary cause of the remaining classification difficulty on these categories. A detailed class-by-class discussion is provided in the Failure Case Analysis paragraph in Section III-C, added in response to Comment~6 of Reviewer~1.
+
+\textbf{(3) Regarding preliminary mitigation attempts and future work:}
+
+As discussed in our response to Comment~6 of Reviewer~1 and Comment~1 of Reviewer~2, we conducted a preliminary exploration using focal loss and minority-class oversampling, observing a modest improvement on the affected classes. This suggests that while class imbalance is a contributing factor, it is not the sole cause, and the remaining spectral/structural ambiguity requires further investigation, which we have identified as future work in the Conclusion of the revised manuscript.
+
+We note that the corresponding textual additions to \textbf{Section III-C (Failure Case Analysis)} and \textbf{Section IV (Conclusion)} have already been detailed in our responses to Comment~6 of Reviewer~1 and Comment~1 of Reviewer~2, and are not repeated here to avoid redundancy.
+
+We hope this discussion effectively addresses the reviewer's concern regarding the remaining classification difficulty on certain categories. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#3, Comment \#4}] 
   \vspace{1em}
@@ -58,7 +177,31 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this helpful suggestion. We fully agree that providing the classification maps on the Augsburg dataset, in addition to the quantitative results in Table~I, would offer a more intuitive and complete visual evaluation of SGFNet. We have generated classification maps for all compared methods on the Augsburg dataset. As this is a Letter with a strict page limit, and given that a full-page classification map figure for a second dataset would not fit within the current layout, we have placed this figure in the \textbf{Supplementary Material} accompanying the revised manuscript, with a pointer added to the main text.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the added visualization:}
+
+We have generated classification maps for all compared methods, including S$^2$ENet, DFINet, ExViT, DFFNet, MSFM, GCCQTNet (the additional baseline introduced in response to Comment~5 of Reviewer~1), and the proposed SGFNet, on the Augsburg dataset, together with the ground truth. This figure follows the same visualization format as Fig.~4, which presents the classification maps on the Houston2018 dataset.
+
+\textbf{(2) Regarding the observed visual patterns:}
+
+% [TODO: 待补充可视化观察分析文字，例如：SGFNet产生的分类图在Industrial area、Allotment等复杂区域边界更清晰、噪声点更少，与ground truth的一致性更高，验证了定量结果中的优势]
+
+We have added this new figure as \textbf{Fig.~S1} in a new \textbf{Section S.III (Classification Maps on the Augsburg Dataset)} of the \textbf{Supplementary Material}, and added a brief pointer sentence at the end of the Augsburg results discussion in \textbf{Section III-C} of the main manuscript. The specific added texts are as follows:
+
+\textit{Addition to Section III-C of the main manuscript:}
+
+``\textcolor{red}{The corresponding classification maps on the Augsburg dataset are provided in the Supplementary Material due to the page limit of this Letter.}''
+
+\textit{New Section S.III in the Supplementary Material:}
+
+``\textbf{\textcolor{red}{S.III Classification Maps on the Augsburg Dataset.}} \textcolor{red}{Fig.~S1 shows the classification maps of all compared methods on the Augsburg dataset.}''
+
+We hope this additional visualization, presented in the Supplementary Material due to the page limit of this Letter, effectively addresses the reviewer's concern and provides a more complete evaluation of the classification performance on the Augsburg dataset. All corresponding changes have been highlighted in red in the updated manuscript and supplementary material for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#3, Comment \#5}] 
   \vspace{1em}
@@ -71,7 +214,25 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this important comment. We fully agree that the relationship between DCT-domain modulation and robustness to spatial misregistration required more rigorous evidence beyond a purely qualitative description. This concern is closely related to comments raised by Reviewer~1 (Comment~2) and Reviewer~2 (Comment~2), and we have addressed it with both a more rigorous theoretical discussion and a new controlled experiment providing direct quantitative evidence.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the theoretical evidence:}
+
+We have grounded our claim in the shift theorem of the discrete transform: a spatial translation of an image alters only the phase component of its frequency representation, while the magnitude/energy distribution across frequency bands remains largely unchanged. Since slight cross-modal misregistration in multi-source remote sensing data typically manifests as small spatial translations or local geometric distortions, frequency-domain operations that primarily act on the energy distribution, as performed by FMFB, are inherently less sensitive to such shifts than pixel-wise spatial-domain fusion. In addition, the DCT concentrates most of the signal energy into low-frequency components, where the relative effect of small spatial misregistration is proportionally weaker than in high-frequency, edge-sensitive regions. This theoretical basis has been added to Section II-C of the revised manuscript, as detailed in our response to Comment~2 of Reviewer~1.
+
+\textbf{(2) Regarding the quantitative evidence:}
+
+To move beyond a purely qualitative description, we conducted a controlled experiment on the Houston2018 dataset by artificially applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, and compared the OA degradation of SGFNet against two representative state-of-the-art methods, DFFNet and MSFMamba, under identical shift conditions. 
+% [TODO: 待补充实验数据]
+The results provide direct quantitative evidence that SGFNet, empowered by DCT-domain modulation in FMFB, exhibits substantially smaller performance degradation as the shift magnitude increases compared to the spatial-domain fusion strategies adopted by DFFNet and MSFMamba, thereby substantiating the claimed relationship between DCT-domain modulation and robustness to spatial misregistration with concrete empirical results rather than qualitative argument alone.
+
+We note that the corresponding textual and experimental additions to \textbf{Section II-C} and \textbf{Section III-E (Robustness to Spatial Misalignment)} have already been detailed in our responses to Comment~2 of Reviewer~1 and Comment~2 of Reviewer~2, and are not repeated here to avoid redundancy.
+
+We hope this combination of theoretical grounding and quantitative evidence effectively addresses the reviewer's concern regarding the relationship between DCT-domain modulation and robustness to spatial misregistration. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+
+\vspace{2em}
 
 \begin{tcolorbox}[title={Reviewer \#3, Comment \#6}] 
   \vspace{1em}
@@ -84,7 +245,23 @@ TODO
 
 \textbf{Response:}
 
-TODO
+We sincerely thank the reviewer for this insightful comment. We fully agree that the role of the frequency-domain difference feature $\hat{\mathbf{F}}_d$ in Fig.~3 was not sufficiently explained, and that the concern regarding potential suppression of modality-specific information is a valid and important one. We have clarified the design rationale and, importantly, would like to highlight that the architecture of FMFB is specifically designed to avoid this issue.
+
+Specifically, we would like to clarify the following:
+
+\textbf{(1) Regarding the role of the frequency-domain difference feature:}
+
+We would like to emphasize that the difference feature $\hat{\mathbf{F}}_d = \hat{\mathbf{F}}_h - \hat{\mathbf{F}}_x$ (Eq.~9) is used \textit{exclusively} to generate the query and key features $\mathbf{Q}_d = f_q(\hat{\mathbf{F}}_d)$ and $\mathbf{K}_d = f_k(\hat{\mathbf{F}}_d)$ (as shown in Fig.~3), which serve only to compute the cross-modal attention weights in Eqs.~(11)--(12). Critically, the value features $\mathbf{V}_h$ and $\mathbf{V}_x$ that carry the actual modality-specific content are separately projected \textit{directly} from the original DCT-transformed features $\hat{\mathbf{F}}_h$ and $\hat{\mathbf{F}}_x$ (Eq.~10), \textit{without} passing through the difference operation. Therefore, the difference feature does not participate in the content pathway that is ultimately propagated and fused; it only modulates \textit{how much} attention is allocated to different frequency components, not \textit{what} content is aggregated.
+
+\textbf{(2) Regarding why the difference operation does not suppress modality-specific information:}
+
+Physically, the frequency-domain difference $\hat{\mathbf{F}}_d$ highlights the frequency components where the two modalities disagree, which typically correspond to regions affected by slight spatial misalignment or genuinely complementary structural information (e.g., edges present in LiDAR but not HSI). Using this discrepancy signal to guide the attention weights allows the network to adaptively emphasize frequency components that require cross-modal reconciliation, while the underlying modality-specific value features $\mathbf{V}_h$ and $\mathbf{V}_x$ remain fully intact and are preserved separately for each modality throughout the attention and reconstruction process (Eqs.~11--14). Consequently, no modality-specific information is discarded or suppressed; the difference operation only serves as a guidance signal for adaptive cross-modal weighting, not as a transformation applied to the propagated content itself.
+
+We have added the following clarification to \textbf{Section II-C (Frequency Modulated Fusion Block)} of the revised manuscript. The specific added text is as follows:
+
+``\textcolor{red}{We emphasize that the frequency-domain difference feature $\hat{\mathbf{F}}_d$ is used exclusively to generate the query and key features that guide the cross-modal attention weights in Eqs.~(11)--(12), while the value features $\mathbf{V}_h$ and $\mathbf{V}_x$, which carry the actual modality-specific content, are separately projected directly from the original DCT-transformed features $\hat{\mathbf{F}}_h$ and $\hat{\mathbf{F}}_x$ without passing through the difference operation. As such, $\hat{\mathbf{F}}_d$ only modulates how attention is allocated across frequency components based on cross-modal discrepancy, rather than transforming the content that is ultimately propagated and fused. This design ensures that no modality-specific information is discarded or suppressed by the difference operation.}''
+
+We hope this clarification effectively addresses the reviewer's concern regarding the role of the frequency-domain difference feature and its potential impact on modality-specific information. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
 
 
 \vspace{2em}

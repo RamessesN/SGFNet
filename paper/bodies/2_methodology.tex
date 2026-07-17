@@ -14,7 +14,6 @@ By progressively stacking several SGFMs, the framework performs hierarchical sem
   \label{fig-smcb}
 \end{figure}
 
-
 \subsection{Semantic Mixing Convolution Block (SMCB)}
 
 Standard convolutions use spatially shared fixed kernels, limiting their ability to adapt to varying semantic structures and contextual relationships. To address this issue, we propose the Semantic Mixing Convolution Block (SMCB), which integrates convolution with semantic-aware dynamic filtering. Instead of fixed kernels, SMCB dynamically generates spatially adaptive kernels based on semantic affinities between query and key features. The resulting dynamic kernels guide local feature aggregation, enabling the network to emphasize semantically relevant contextual information adaptively. Details of the SMCB are shown in Fig. \ref{fig-smcb}. Given an input feature $\mathbf{X}\in\mathbb{R}^{C\times H\times W}$, it is projected by a $1\times1$ convolution to obtain the value and query features as: 
@@ -35,6 +34,8 @@ This affinity map measures the relationship between each spatial position and th
 \mathbf{D}=\mathrm{Softmax}(\mathrm{Reshape}(\mathrm{Linear}(\mathbf{A}))).
 \end{equation}
 
+\textcolor{red}{Specifically, given the input feature $\mathbf{X} \in \mathbb{R}^{C \times H \times W}$, the query is reshaped to $\mathbf{Q} \in \mathbb{R}^{C \times HW}$, and the key is obtained by adaptively pooling $\mathbf{X}$ to a $K \times K$ spatial resolution followed by a $1\times1$ convolution, then flattened to $\mathbf{K} \in \mathbb{R}^{C \times K^2}$. The resulting affinity map $\mathbf{A} = \mathbf{Q}^{\top}\mathbf{K} \in \mathbb{R}^{HW \times K^2}$ measures the relationship between each of the $HW$ spatial positions and the $K^2$ globally-pooled semantic anchors. This affinity map is then processed by a linear layer that preserves the $K^2$ dimensionality while allowing learnable re-weighting, reshaped into $\mathbb{R}^{1 \times H \times W \times K \times K}$, and normalized via Softmax along the last two dimensions to ensure the sampling weights at each spatial position sum to one, yielding the final dynamic kernel $\mathbf{D} \in \mathbb{R}^{1 \times H \times W \times K \times K}$. Note that $\mathbf{D}$ is shared across all $C$ channels and is broadcast when applied to the unfolded value feature $\mathbf{V}' \in \mathbb{R}^{C \times H \times W \times K \times K}$ in Eq.~(6).} \textcolor{green}{\{R1-C4\}}
+
 In parallel, the value feature $\mathbf{V}$ is unfolded into local patches:
 \begin{equation}
 \mathbf{V}'=\operatorname{Unfold}(\mathbf{V}).
@@ -49,6 +50,8 @@ Besides the dynamic context branch, the framework also includes a local feature 
 \begin{equation}
   \mathbf{Y}=\mathbf{X}'+\mathbf{X}_d.
 \end{equation}
+
+\textcolor{red}{Compared with prior dynamic convolution methods (e.g., CondConv~\cite{condconv}, Involution~\cite{involution}), which generate content-adaptive kernels purely from the local receptive field of each spatial position, SMCB instead computes the dynamic kernel by measuring the affinity between a per-position query $\mathbf{Q}$ and a set of globally pooled key vectors $\mathbf{K}$ (Eq.~2). This allows each spatial location to adaptively aggregate information conditioned on a compact, globally-informed semantic summary rather than being restricted to a fixed local window, which is the primary source of SMCB's long-range dependency modeling capability. Furthermore, unlike existing semantic-aware filtering approaches that rely on externally supervised or heuristically defined semantic categories to modulate the convolution kernels, SMCB requires no auxiliary semantic supervision: the semantic affinity in Eq.~(3) is learned entirely end-to-end from feature-level query-key interactions, making it directly applicable to multi-source remote sensing data where reliable semantic labels for intermediate features are unavailable. In addition, rather than generating a full $C \times K \times K$ kernel per spatial position as in conventional dynamic filtering, SMCB decouples kernel generation from the channel dimension: the dynamic kernel $\mathbf{D} \in \mathbb{R}^{1 \times H \times W \times K \times K}$ is shared across channels and only modulates spatial sampling weights, while channel-wise transformation is handled separately by the $1\times1$ projections in Eq.~(1)--(2). This design substantially reduces the parameter and computational overhead relative to fully dynamic per-channel kernels, as quantified in Section III-D.} \textcolor{green}{\{R1-C1\}} \textcolor{red}{Physically, the key vectors $\mathbf{K}$ in Eq.~(2) are obtained by adaptively pooling contextual information from across the entire spatial extent of the input feature map, and therefore represent global contextual descriptors rather than locally restricted ones. When computing the affinity map in Eq.~(3), every spatial position measures its relevance to these globally-derived key vectors regardless of their physical distance, allowing the resulting dynamic kernel to adaptively aggregate information from semantically related regions located anywhere in the image. This effectively extends the receptive field of the dynamic kernel from a local spatial window to the semantic structure of the entire feature map, which constitutes the underlying physical mechanism through which SMCB models long-range semantic dependencies.} \textcolor{green}{\{R2-C3\}}
 
 The SMCB achieves a more flexible and semantically aware feature extraction mechanism. It is particularly suitable for understanding the complex structures of remote sensing data, where both local structural details and semantic contextual dependencies are critical.
 
@@ -85,17 +88,20 @@ Meanwhile, the two DCT-transformed inputs are separately projected into value fe
 \mathbf{V}_x=f_v^x(\hat{\mathbf{F}}_x).
 \end{equation}
 
+\textcolor{red}{We emphasize that the frequency-domain difference feature $\hat{\mathbf{F}}_d$ is used exclusively to generate the query and key features that guide the cross-modal attention weights in Eqs.~(11)--(12), while the value features $\mathbf{V}_h$ and $\mathbf{V}_x$, which carry the actual modality-specific content, are separately projected directly from the original DCT-transformed features $\hat{\mathbf{F}}_h$ and $\hat{\mathbf{F}}_x$ without passing through the difference operation. As such, $\hat{\mathbf{F}}_d$ only modulates how attention is allocated across frequency components based on cross-modal discrepancy, rather than transforming the content that is ultimately propagated and fused. This design ensures that no modality-specific information is discarded or suppressed by the difference operation.} \textcolor{green}{\{R3-C6\}}
+
 Next, attention is computed as follows:
 \begin{equation}
  \mathbf{F}^{attn}_{h} = \mathrm{Softmax}\left(
- \frac{Q_d K_d}{\sqrt{d_k}}V_h
- \right),
+ \textcolor{red}{\frac{\mathbf{Q}_d \mathbf{K}_d^{\top}}{\sqrt{d_k}}}
+ \right)\textcolor{red}{\mathbf{V}_h},
 \end{equation}
 \begin{equation}
  \mathbf{F}^{attn}_{x} = \mathrm{Softmax}\left(
- \frac{Q_d K_d}{\sqrt{d_k}}V_x
- \right),
+ \textcolor{red}{\frac{\mathbf{Q}_d \mathbf{K}_d^{\top}}{\sqrt{d_k}}}
+ \right)\textcolor{red}{\mathbf{V}_x},
 \end{equation}
+\textcolor{red}{where $d_k$ denotes the channel dimension of $\mathbf{Q}_d$ and $\mathbf{K}_d$, used as a scaling factor to stabilize gradients during training.} \textcolor{green}{\{R1-C3\}}
 
 After that, the modulated frequency-domain features are transformed back into the spatial domain through 2D inverse DCT:
 \begin{equation}
@@ -110,3 +116,11 @@ The reconstructed feature is further refined by the Feed-Forward Network (FFN) a
 \quad
 \mathbf{F}'_x=\operatorname{FFN}(\hat{\mathbf{F}}'_x) + \mathbf{F}_x.
 \end{equation}
+
+\begin{equation}
+\mathbf{F}'_h=\operatorname{FFN}(\hat{\mathbf{F}}'_h) + \mathbf{F}_h,
+\quad
+\mathbf{F}'_x=\operatorname{FFN}(\hat{\mathbf{F}}'_x) + \mathbf{F}_x.
+\end{equation}
+
+\textcolor{red}{The rationale for performing cross-modal interaction in the frequency domain rather than the spatial domain lies in the shift theorem of the discrete transform: a spatial translation of an image alters only the phase component of its frequency representation, while the magnitude/energy distribution across frequency bands remains largely unchanged. Since slight cross-modal misalignment in multi-source remote sensing data typically manifests as small spatial translations or local geometric distortions, frequency-domain operations that primarily act on the energy distribution, as performed by FMFB, are inherently less sensitive to such shifts than pixel-wise spatial-domain fusion. Moreover, the DCT concentrates most of the signal energy into low-frequency components, where the relative effect of small spatial misalignment is proportionally weaker than in high-frequency, edge-sensitive regions. This provides the theoretical basis for the improved robustness of FMFB to slight spatial misalignment between multi-source data.} \textcolor{green}{\{R1-C2/R2-C2\}}
