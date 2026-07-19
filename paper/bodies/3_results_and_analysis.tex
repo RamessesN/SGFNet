@@ -12,7 +12,7 @@
 
 \begin{table}
   \centering
-  \caption{Experimental results on the Augsburg dataset. The \textbf{bold} and \underline{underline} denote the best and second results. \textcolor{green}{\{R1-C5\}}}
+  \caption{Experimental results on the Augsburg dataset. The \textbf{bold} and \underline{underline} denote the best and second results.}
   \setlength{\tabcolsep}{3pt} 
   \resizebox{0.90\linewidth}{!}{
   \begin{tabular}{c|ccccccc}
@@ -35,7 +35,7 @@
   \label{table_augsburg}
 \end{table}
 
-The performance of the proposed SGFNet is evaluated on two benchmark multi-source remote sensing datasets for land-cover classification. The first dataset is the Augsburg Dataset \cite{aug23data}, which consists of HSI and SAR data. It contains ground-truth annotations for seven land-cover classes and has a spatial size of 332 $\times$ 485 pixels. The second dataset is the Houston 2018 Dataset, which comprises HSI and LiDAR data. As it is obtained from the IEEE GRSS Data Fusion Contest 2018 \cite{xyh18grss}, this dataset provides a representative multi-sensor optical geospatial benchmark for challenging urban land-cover and land-use classification tasks over the University of Houston campus and its surrounding areas. The dataset includes hyperspectral imagery with 48 spectral bands spanning wavelengths from 380-1050 nm, along with LiDAR measurements that provide accurate elevation information.
+The performance of the proposed SGFNet is evaluated on two benchmark multi-source remote sensing datasets for land-cover classification. The first dataset is the Augsburg Dataset \cite{aug23data}, which consists of HSI and SAR data. It contains ground-truth annotations for seven land-cover classes. The second dataset is the Houston 2018 Dataset, which comprises HSI and LiDAR data. As it is obtained from the IEEE GRSS Data Fusion Contest 2018 \cite{xyh18grss}, this dataset provides a representative multi-sensor optical geospatial benchmark for challenging urban land-cover and land-use classification tasks over the University of Houston campus and its surrounding areas. 
 
 Our SGFNet was conducted on NVIDIA GeForce RTX 5080 GPU. The training phase spanned over 100 epochs. The AdamW optimizer was used with a learning rate of 0.001. The batch size was set to 32. To evaluate the performance of the proposed SGFNet, we compare it against other state-of-the-art methods, including S$^2$ENet \cite{fs22grsl}, DFINet \cite{gyh22tgrs}, ExViT \cite{exvit}, DFFNet \cite{dffnet}, and MSFM \cite{gao2025msfmamba}. To quantitatively evaluate the experimental results, we employ three standard metrics: Overall Accuracy (OA), Average Accuracy (AA), and Kappa coefficient. 
 
@@ -48,11 +48,11 @@ Our SGFNet was conducted on NVIDIA GeForce RTX 5080 GPU. The training phase span
   \label{fig_para}
 \end{figure}
 
-\textbf{Number of SGFM.} The number of SGFM is an important parameter that may affect the classification performance. We test different numbers of SGFM from 1 to 4. The experimental results are shown in Fig. \ref{fig_para}(a). When the number of SGFM is set to 2, our SGFNet achieves the best performance on both datasets. Therefore, in the following experiments, we use two SGFMs in the proposed SGFNet.
+\textbf{Number of SGFM.} We test different numbers of SGFM from 1 to 4. The experimental results are shown in Fig. \ref{fig_para}(a). When the number of SGFM is set to 2, our SGFNet achieves the best performance on both datasets. Therefore, in the following experiments, we use two SGFMs in the proposed SGFNet.
 
-\textbf{Number of Principal Components for HSI.} HSI data contains rich spectral information but also introduces redundancy and spectral noise. Therefore, we use Principal Component Analysis (PCA) for HSI preprocessing. We tested the number of principal components for HSI, and the experimental results are shown in Fig. \ref{fig_para}(b). It can be observed that when the number of principal components is set to 30, our SGFNet achieves the best classification performance. Retaining too few components discards crucial discriminative spectral features, leading to suboptimal accuracy. Thus, the number of principal components is empirically set to 30.
+\textbf{Number of Principal Components for HSI.} We use Principal Component Analysis (PCA) for HSI preprocessing. We tested the number of principal components for HSI, and the experimental results are shown in Fig. \ref{fig_para}(b). It can be observed that when the number of principal components is set to 30, our SGFNet achieves the best classification performance. Retaining too few components discards crucial discriminative spectral features, leading to suboptimal accuracy. Thus, the number of principal components is empirically set to 30.
 
-\textcolor{red}{\textbf{Sensitivity of the Dynamic Kernel Size in SMCB.} The dynamic kernel size $K$ in SMCB determines the number of semantic sampling locations used to generate the dynamic convolution kernel, and may therefore affect the classification performance. We evaluate SGFNet with $K \in \{5, 7, 9, 11\}$ on both the Augsburg and Houston2018 datasets, and the results are shown in Table~\ref{table_kernel}. The OA on both datasets peaks at $K=7$ (92.58\% on Augsburg and 94.10\% on Houston2018), and gradually declines as $K$ deviates from this value in either direction. A smaller $K$ provides insufficient semantic sampling locations for effective contextual modeling, while a larger $K$ introduces potentially redundant or noisy contextual information along with increased computational overhead. Based on this analysis, we set $K=7$ in our experiments, as it achieves the best trade-off between classification accuracy and computational overhead.} \textcolor{green}{\{R2-C4\}}
+\textcolor{red}{\textbf{Sensitivity of the Dynamic Kernel Size in SMCB.} We evaluate SGFNet with $K \in \{5, 7, 9, 11\}$ on both datasets, and the results are shown in Table \ref{table_kernel}. The OA on both datasets peaks at $K=7$. A smaller $K$ provides insufficient semantic sampling locations for effective contextual modeling, while a larger $K$ introduces potentially redundant or noisy contextual information. Hence, we set $K=7$ in our experiments, as it achieves the best trade-off between classification accuracy and computational overhead.}
 
 \begin{table}[h]
   \centering
@@ -62,22 +62,20 @@ Our SGFNet was conducted on NVIDIA GeForce RTX 5080 GPU. The training phase span
   \toprule
   $K$ & 5 & 7 & 9 & 11 \\
   \midrule
-  Augsburg    & 91.64 & \textbf{92.58} & \underline{92.50} & 92.02 \\
-  Houston2018 & 93.26 & \textbf{94.10} & \underline{94.03} & 93.47 \\
+  Augsburg    & 91.64 & \textbf{92.58} & 92.50 & 92.02 \\
+  Houston2018 & 93.26 & \textbf{94.10} & 94.03 & 93.47 \\
   \bottomrule
   \end{tabular}}
   \label{table_kernel}
 \end{table}
 
-\textcolor{red}{We further analyze the sensitivity of SGFNet to the channel dimension $C$ in the Supplementary Material, which shows that SGFNet achieves the optimal balance between classification accuracy and model complexity when $C$ is set to 64.}
-
 \subsection{Experimental Results and Analysis}
 
-\textbf{Results on the Augsburg Dataset.} Table \ref{table_augsburg} shows the quantitative evaluations on the Augsburg dataset. The OA value of the proposed SGFNet achieves 92.38\%, outperforming all the other methods. From the class-wise results, SGFNet achieves the best performance in \textcolor{red}{Allotment, and remains highly competitive in the Industrial area.} \textcolor{green}{\{R1-C5\}} Both categories usually exhibit complex spatial structures and significant spectral ambiguity, indicating that SGFNet can effectively capture discriminative semantic and contextual information. \textcolor{red}{The corresponding classification maps on the Augsburg dataset are provided in the Supplementary Material due to the page limit of this Letter.}
+\textbf{Results on the Augsburg Dataset.} Table \ref{table_augsburg} shows the quantitative evaluations on the Augsburg dataset. The OA value of the proposed SGFNet achieves 92.38\%, outperforming all the other methods. From the class-wise results, SGFNet achieves the best performance in \textcolor{red}{Allotment, and remains highly competitive in the Industrial area.} Both categories usually exhibit complex spatial structures and significant spectral ambiguity, indicating that SGFNet can effectively capture discriminative semantic and contextual information.
 
 \begin{table}
   \centering
-  \caption{Experimental results on the Houston2018 dataset. The \textbf{bold} and \underline{underline} denote the best and second best results. \textcolor{green}{\{R1-C5\}}}
+  \caption{Experimental results on the Houston2018 dataset. The \textbf{bold} and \underline{underline} denote the best and second best results. }
   \setlength{\tabcolsep}{2pt} 
   \resizebox{0.9\linewidth}{!}{
   \begin{tabular}{c|ccccccc}
@@ -113,11 +111,10 @@ Our SGFNet was conducted on NVIDIA GeForce RTX 5080 GPU. The training phase span
   \label{table_houston2018}
 \end{table}
 
-\textbf{Results on the Houston2018 Dataset.} The classification maps on the Houston2018 dataset are shown in Fig. \ref{fig_results}, and the corresponding quantitative evaluations are illustrated in Table \ref{table_houston2018}. It can be observed that SGFNet produces classification maps that are more consistent with the ground truth, demonstrating superior land-cover discrimination capability. Table \ref{table_houston2018} shows that our SGFNet obtains the highest OA and Kappa, significantly outperforming other state-of-the-art methods. SGFNet achieves the best performance in several challenging categories, including Evergreen trees, Deciduous trees, Buildings, Roads, Sidewalks, Crosswalks, and Paved parking lots. These categories usually contain complex spatial distributions and strong spectral similarity with surrounding objects. The superior performance of SGFNet indicates that the proposed framework can effectively capture discriminative semantic information and exploit complementary features from multi-source data.
+\textbf{Results on the Houston2018 Dataset.} The classification maps on the Houston2018 dataset are shown in Fig. \ref{fig_results}, and the corresponding quantitative evaluations are illustrated in Table \ref{table_houston2018}. It can be observed that SGFNet produces classification maps that are more consistent with the ground truth, demonstrating superior land-cover discrimination capability. It shows that our SGFNet obtains the highest OA and Kappa, significantly outperforming other state-of-the-art methods. SGFNet achieves the best performance in several challenging categories, including Evergreen trees, Deciduous trees, Buildings, Roads, Sidewalks, Crosswalks, and Paved parking lots. These categories usually contain complex spatial distributions and strong spectral similarity with surrounding objects. The superior performance of SGFNet indicates that the proposed framework can effectively capture discriminative semantic information from multi-source data.
 
-\textcolor{red}{We note that the class imbalance observed in the above results primarily stems from the intrinsic, naturally imbalanced land-cover distribution of the benchmark datasets: classes such as Forest and Water occupy large, contiguous spatial extents and are represented by abundant labeled samples, whereas classes such as Commercial area and Industrial area correspond to sparse, scattered regions with comparatively few labeled samples. This inherent imbalance in sample availability, compounded by the spectral and structural similarity among man-made built-up surfaces, contributes to the underperformance on these minority classes discussed below.} \textcolor{green}{\{R2-C1\}}
+\textcolor{red}{Although SGFNet is not specifically designed for class-imbalance learning, it partially alleviates the negative effects of imbalanced samples. SGFNet achieves notable improvements on minority classes (Roads, Sidewalks, Crosswalks, and Residential buildings), together with the highest AA of 96.71\%. It indicates that its semantic feature extraction and cross-modal fusion enhance minority-class discrimination. However, without balanced sampling, loss reweighting, or data augmentation, SGFNet mitigates rather than fundamentally solves the class-imbalance problem.}
 
-\textcolor{red}{\textbf{Failure Case Analysis.} Although SGFNet achieves the best overall accuracy on both datasets, it does not consistently outperform all baselines on every individual class. On the Augsburg dataset, SGFNet underperforms the best method on the Industrial area and Commercial area classes, most notably on Commercial area (8.55\% vs. 28.63\% for ExViT). We attribute this to the severe class imbalance of these two categories, which limits the supervisory signal available for learning discriminative semantic patterns, as well as the strong spectral and structural similarity among man-made built-up surfaces (Commercial, Residential, and Industrial areas), which makes them intrinsically difficult to disambiguate. A preliminary exploration using focal loss and minority-class oversampling showed a modest improvement on these classes, suggesting that class imbalance is a contributing factor, though spectral ambiguity likely also plays a substantial role. On the Houston2018 dataset, SGFNet is marginally surpassed by GCCQTNet on the Paved parking lots class by a negligible margin (99.34\% vs. 99.35\%), and the relatively lower accuracy on Roads and Sidewalks reflects the weak discriminability of both HSI and SAR/LiDAR cues at the shared boundaries of paved urban surfaces. Nevertheless, SGFNet still achieves the highest AA among all compared methods on both datasets, indicating that it handles minority and spectrally ambiguous classes more effectively than all baselines on average, even though it does not dominate every single class.} \textcolor{green}{\{R1-C6\}}
 
 \begin{table}[!t]
 \centering
@@ -138,15 +135,15 @@ w/o FMFB   & 91.29 & 92.37 \\
 
 \subsection{Ablation Study}
 
-Table \ref{table_ablation} presents the ablation study results of the proposed SGFNet. The experiments are designed to evaluate the effectiveness of SMCB and FMFB. Starting from the baseline model, both modules consistently improve the classification performance. This demonstrates that SMCB can effectively enhance contextual representation capability, and FMFB effectively alleviates the slight spatial misalignment between multi-source data. The complete SGFNet achieves significant improvements of 3.84\% and 4.52\%, respectively. These results demonstrate that both proposed modules are complementary and jointly contribute to more robust multi-source feature fusion and classification. \textcolor{red}{In addition, a detailed computational complexity analysis in the Supplementary Material shows that SGFNet achieves the smallest number of parameters and among the fastest inference speed of all compared methods, confirming a favorable trade-off between efficiency and accuracy.} \textcolor{green}{\{R3-C1\}}
+Table \ref{table_ablation} presents the ablation study results of the proposed SGFNet. The experiments are designed to evaluate the effectiveness of SMCB and FMFB. Both modules consistently improve the classification performance, it demonstrates that SMCB can effectively enhance contextual representation capability, and FMFB effectively alleviates the slight spatial misalignment between multi-source data. The complete SGFNet achieves significant improvements of 3.84\% and 4.52\%, respectively. These results demonstrate that both proposed modules are complementary and jointly contribute to more robust classification. 
 
 \subsection{\textcolor{red}{Robustness to Spatial Misalignment}}
 
-\textcolor{red}{To empirically verify the robustness of FMFB to spatial misalignment, we conduct a controlled experiment on the Houston2018 dataset by artificially applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, while keeping the HSI branch fixed. We directly evaluate the models trained on the original, well-aligned data under these shifted test conditions, and compare our SGFNet against two representative state-of-the-art methods, DFFNet and MSFMamba. As shown in Table~\ref{table_alignment}, the OA of DFFNet and MSFMamba degrades by 2.60\% and 2.03\%, respectively, as the shift increases from 0 to 5 pixels, whereas SGFNet exhibits only a 1.40\% drop, with the performance gap between SGFNet and the baselines widening progressively at larger shift magnitudes. This confirms that the proposed FMFB effectively alleviates the adverse impact of cross-modal spatial misalignment through frequency-domain modulation.} \textcolor{green}{\{R1-C2/R2-C2\}}
+\textcolor{red}{We conduct experiments on the Houston2018 dataset by applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, while keeping the HSI branch fixed. As shown in Table \ref{table_alignment}, the OA of DFFNet and MSFMamba degrades by 2.60\% and 2.03\%, respectively, whereas SGFNet exhibits only 1.40\% drop. It confirms that the proposed FMFB alleviates cross-modal spatial misalignment through frequency-domain modulation.} 
 
 \begin{table}[h]
   \centering
-  \caption{Comparison of OA (\%) under different degrees of artificial spatial shifts on the Houston2018 dataset.}
+  \caption{OA (\%) under spatial shifts on the Houston2018 dataset.}
   \resizebox{0.65\columnwidth}{!}{
   \begin{tabular}{lccccc}
   \toprule
