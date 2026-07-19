@@ -19,7 +19,7 @@ We have very carefully followed all the comments and cleared up every issue rais
 
 \textbf{Response:}
 
-We sincerely thank the reviewer for raising this important point. We fully agree that class imbalance is indeed present in our experimental results, and we have carefully analyzed its underlying causes and added a corresponding discussion to the revised manuscript.
+We sincerely thank the reviewer for this helpful comment. We fully agree that class imbalance is indeed present in our experimental results, and we have carefully analyzed its underlying causes and added a corresponding discussion to the revised manuscript.
 
 Specifically, we would like to clarify the following:
 
@@ -29,15 +29,11 @@ The class imbalance observed in our results primarily stems from the intrinsic, 
 
 \textbf{(2) Regarding a compounding factor beyond sample quantity:}
 
-Beyond the quantitative imbalance in sample counts, we further observe that the classes most affected (e.g., Commercial area) also exhibit strong spectral and structural similarity to neighboring majority classes (e.g., Residential area, Industrial area), since all correspond to man-made built-up surfaces with overlapping reflectance and geometric characteristics. This compounding effect of limited supervision and inherent spectral ambiguity makes these minority classes particularly challenging to classify accurately, as discussed in detail in our Failure Case Analysis (Section III-C) and in our response to Comment~6 of Reviewer~1.
-
-\textbf{(3) Regarding our preliminary exploration and future work:}
-
-To further investigate whether the underperformance on minority classes is primarily attributable to class imbalance, we conducted a preliminary exploration using two common imbalance-mitigation strategies: focal loss and minority-class oversampling. We observed a modest improvement on the affected minority classes under these strategies, suggesting that class imbalance is indeed a contributing factor, though the spectral ambiguity discussed above likely also plays a substantial role and is not fully resolved by loss re-weighting or resampling alone. As a systematic study of imbalance-handling techniques is beyond the scope of this letter, we have explicitly identified this as an important direction for future work in the Conclusion of the revised manuscript.
+Beyond the quantitative imbalance in sample counts, we further observe that the classes most affected (e.g., Commercial area) also exhibit strong spectral and structural similarity to neighboring majority classes (e.g., Residential area, Industrial area), since all correspond to man-made built-up surfaces with overlapping reflectance and geometric characteristics. This compounding effect of limited supervision and inherent spectral ambiguity makes these minority classes particularly challenging to classify accurately, as discussed in detail in our Failure Case Analysis (Section III-C) and in our response to Comment~6 of Reviewer 1.
 
 We have added the following clarification on the underlying cause of class imbalance to \textbf{Section III-C} of the revised manuscript, immediately preceding the Failure Case Analysis paragraph already added in response to Comment~6 of Reviewer~1. The specific added text is as follows:
 
-``\textcolor{red}{We note that the class imbalance observed in the above results primarily stems from the intrinsic, naturally imbalanced land-cover distribution of the benchmark datasets: classes such as Forest and Water occupy large, contiguous spatial extents and are represented by abundant labeled samples, whereas classes such as Commercial area and Industrial area correspond to sparse, scattered regions with comparatively few labeled samples. This inherent imbalance in sample availability, compounded by the spectral and structural similarity among man-made built-up surfaces, contributes to the underperformance on these minority classes discussed below.}''
+``\textcolor{red}{Although SGFNet is not specifically designed for class-imbalance learning, it partially alleviates the negative effects of imbalanced samples. SGFNet achieves notable improvements on minority classes (Roads, Sidewalks, Crosswalks, and Residential buildings), together with the highest AA of 96.71\%. It indicates that its semantic feature extraction and cross-modal fusion enhance minority-class discrimination. However, without balanced sampling, loss reweighting, or data augmentation, SGFNet mitigates rather than fundamentally solves the class-imbalance problem.}''
 
 We hope this analysis effectively clarifies the underlying causes of class imbalance in our experiments and addresses the reviewer's concern. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
 
@@ -66,12 +62,14 @@ SGFNet addresses the issue of spatial misalignment primarily through the propose
 
 To empirically verify that FMFB indeed improves robustness to spatial misalignment, we conducted a controlled experiment on the Houston2018 dataset by artificially applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, and compared SGFNet against two representative state-of-the-art methods, DFFNet and MSFMamba, under identical shift conditions. 
 
-The results confirm that SGFNet exhibits substantially smaller performance degradation as the shift magnitude increases compared to DFFNet and MSFMamba, verifying that FMFB effectively addresses the issue of spatial misalignment through frequency-domain modulation. This experiment is presented in detail in our response to Comment~2 of Reviewer~1, and the corresponding results have been added to Table [V] in Section III-E of the revised manuscript.
+The results confirm that SGFNet exhibits substantially smaller performance degradation as the shift magnitude increases compared to DFFNet and MSFMamba, verifying that FMFB effectively addresses the issue of spatial misalignment through frequency-domain modulation. The newly added experiments are as follows:
+
+``\textbf{\textcolor{red}{Robustness to Spatial Misalignment.}} \textcolor{red}{We conduct experiments on the Houston2018 dataset by applying spatial shifts of $\{1, 2, 3, 5\}$ pixels along both the $x$- and $y$-directions to the LiDAR branch input, while keeping the HSI branch fixed. As shown in Table V, the OA of DFFNet and MSFMamba degrades by 2.60\% and 2.03\%, respectively, whereas SGFNet exhibits only 1.40\% drop. It confirms that the proposed FMFB alleviates cross-modal spatial misalignment through frequency-domain modulation.}''
 
 \begin{table}[h]
   \centering
-  \caption*{TABLE V Comparison of OA (\%) under different degrees of artificial spatial shifts on the Houston2018 dataset.}
-  \resizebox{0.65\columnwidth}{!}{
+  \footnotesize
+  \caption*{\textcolor{red}{\footnotesize TABLE V: Comparison of OA (\%) under different degrees of artificial spatial shifts on the Houston2018 dataset.}}
   \begin{tabular}{lccccc}
   \toprule
   Shift (pixels) & 0 & 1 & 2 & 3 & 5 \\
@@ -80,12 +78,11 @@ The results confirm that SGFNet exhibits substantially smaller performance degra
   MSFMamba & 92.38 & 92.14 & 92.07 & 91.81 & 90.35 \\
   \rowcolor{bg} \textbf{SGFNet (Ours)} & \textbf{94.17} & \textbf{94.03} & \textbf{93.96} & \textbf{93.64} & \textbf{92.77} \\
   \bottomrule
-  \end{tabular}}
+  \end{tabular}
 \end{table}
 
-We have added the following clarification on the mechanism of FMFB to \textbf{Section II-C (Frequency Modulated Fusion Block)} of the revised manuscript. The specific added text is as follows:
 
-``\textcolor{red}{The rationale for performing cross-modal interaction in the frequency domain rather than the spatial domain lies in the shift theorem of the discrete transform: a spatial translation of an image alters only the phase component of its frequency representation, while the magnitude/energy distribution across frequency bands remains largely unchanged. Since slight cross-modal misalignment in multi-source remote sensing data typically manifests as small spatial translations or local geometric distortions, frequency-domain operations that primarily act on the energy distribution, as performed by FMFB, are inherently less sensitive to such shifts than pixel-wise spatial-domain fusion. Moreover, the DCT concentrates most of the signal energy into low-frequency components, where the relative effect of small spatial misalignment is proportionally weaker than in high-frequency, edge-sensitive regions. This provides the theoretical basis for the improved robustness of FMFB to slight spatial misalignment between multi-source data.}''
+
 
 We hope this detailed explanation of the underlying mechanism, together with the empirical verification via the controlled shift experiment, effectively addresses the reviewer's question regarding how SGFNet handles spatial misalignment. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
 
@@ -114,11 +111,11 @@ Standard convolutional kernels are spatially shared and operate only within a sm
 
 In contrast, SMCB generates its dynamic convolution kernel by computing an affinity between a per-position query $\mathbf{Q}$ and a set of key vectors $\mathbf{K}$ that are obtained via global adaptive pooling over the entire feature map (Eq.~2), rather than from a local neighborhood. Physically, each of the $K^2$ key vectors is computed by adaptively pooling contextual information aggregated from across the whole spatial extent of the input, and therefore represents a global contextual descriptor rather than a locally restricted one. When computing the affinity map (Eq.~3), every spatial position is allowed to measure its relevance to these globally-derived key vectors, regardless of their physical distance. As a result, the dynamic kernel at a given position can be influenced by, and adaptively aggregate information related to, semantically similar regions located anywhere in the image, not merely its local neighborhood. This is the fundamental physical mechanism through which SMCB achieves long-range semantic dependency modeling: the receptive field of the dynamic kernel is effectively extended from a local spatial window to the semantic structure of the entire feature map, while still being applied through an efficient, spatially localized convolution-like operation (Eq.~6).
 
-We have added the following clarification to \textbf{Section II-B (Semantic Mixing Convolution Block)} of the revised manuscript, as part of the same paragraph contrasting SMCB with prior dynamic convolution methods (added in response to Comment~1 of Reviewer~1). The specific added text is as follows:
+We have added the following clarification:
 
 ``\textcolor{red}{Physically, the key vectors $\mathbf{K}$ in Eq.~(2) are obtained by adaptively pooling contextual information from across the entire spatial extent of the input feature map, and therefore represent global contextual descriptors rather than locally restricted ones. When computing the affinity map in Eq.~(3), every spatial position measures its relevance to these globally-derived key vectors regardless of their physical distance, allowing the resulting dynamic kernel to adaptively aggregate information from semantically related regions located anywhere in the image. This effectively extends the receptive field of the dynamic kernel from a local spatial window to the semantic structure of the entire feature map, which constitutes the underlying physical mechanism through which SMCB models long-range semantic dependencies.}''
 
-We hope this explanation effectively clarifies the physical meaning underlying SMCB's long-range dependency modeling capability. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
+Due to the 5-page limit of IEEE GRSL, we will add these descriptions in the supplementary material. We hope this explanation effectively clarifies the physical meaning underlying SMCB's long-range dependency modeling capability. All corresponding changes have been highlighted in red in the updated manuscript for your review. Thank you again for guiding us to improve our manuscript.
 
 \vspace{2em}
 
@@ -147,12 +144,12 @@ As shown in Table~II, the OA on both datasets follows a similar trend: performan
 
 We have added a new subsection titled \textbf{``Sensitivity of the Dynamic Kernel Size in SMCB''} in \textbf{Section III-B (Parameter Analysis)}, together with a new table presenting the experimental results. The specific added text is as follows:
 
-``\textbf{\textcolor{red}{Sensitivity of the Dynamic Kernel Size in SMCB.}} \textcolor{red}{The dynamic kernel size $K$ in SMCB determines the number of semantic sampling locations used to generate the dynamic convolution kernel, and may therefore affect the classification performance. We evaluate SGFNet with $K \in \{5, 7, 9, 11\}$ on both the Augsburg and Houston2018 datasets, and the results are shown in Table~II. The OA on both datasets peaks at $K=7$ (92.58\% on Augsburg and 94.10\% on Houston2018), and gradually declines as $K$ deviates from this value in either direction. A smaller $K$ provides insufficient semantic sampling locations for effective contextual modeling, while a larger $K$ introduces potentially redundant or noisy contextual information along with increased computational overhead. Based on this analysis, we set $K=7$ in our experiments, as it achieves the best trade-off between classification accuracy and computational overhead.}''
+``\textbf{\textcolor{red}{Sensitivity of the Dynamic Kernel Size in SMCB.}} \textcolor{red}{We evaluate SGFNet with $K \in \{5, 7, 9, 11\}$ on both datasets, and the results are shown in Table \ref{table_kernel}. The OA on both datasets peaks at $K=7$. A smaller $K$ provides insufficient semantic sampling locations for effective contextual modeling, while a larger $K$ introduces potentially redundant or noisy contextual information. Hence, we set $K=7$ in our experiments, as it achieves the best trade-off between classification accuracy and computational overhead.}''
 
 \begin{table}[h]
   \centering
-  \caption*{\textcolor{red}{TABLE II OA (\%) of SGFNet under different dynamic kernel sizes $K$ in SMCB.}}
-  \resizebox{0.65\columnwidth}{!}{
+  \footnotesize
+  \caption*{\textcolor{red}{\footnotesize TABLE II: OA (\%) of SGFNet under different dynamic kernel sizes $K$ in SMCB.}}
   \begin{tabular}{lcccc}
   \toprule
   $K$ & 5 & 7 & 9 & 11 \\
@@ -160,7 +157,7 @@ We have added a new subsection titled \textbf{``Sensitivity of the Dynamic Kerne
   Augsburg    & 91.64 & \textbf{92.58} & \underline{92.50} & 92.02 \\
   Houston2018 & 93.26 & \textbf{94.10} & \underline{94.03} & 93.47 \\
   \bottomrule
-  \end{tabular}}
+  \end{tabular}
   \label{table_kernel}
 \end{table}
 
